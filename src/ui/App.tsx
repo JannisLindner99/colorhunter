@@ -70,9 +70,23 @@ function App() {
 const ColorItem: FC<{ value: TColor }> = ({ value }) => {
     const color = `rgb(${value.red}, ${value.green}, ${value.blue}${value.alpha === 1 ? "" : `, ${value.alpha}`})`;
     const textColour = Math.round((value.red * 299 + value.green * 587 + value.blue * 114) / 1000) > 125 ? "black" : "white";
+
+    const handleContextMenu = async (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        const tab = await getActiveTabId();
+        if (tab?.id) {
+            chrome.tabs.sendMessage(tab.id, {
+                action: "highlight-color",
+                color,
+            });
+        }
+    };
+
     return (
         <CopyToClipboard text={color} onCopy={() => toast.success(`Copied!`)}>
             <div
+                onContextMenu={handleContextMenu}
                 className="flex items-center justify-center p-5 text-center border rounded cursor-pointer text-md"
                 style={{ color: textColour, backgroundColor: color }}
             >
